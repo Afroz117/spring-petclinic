@@ -1,0 +1,92 @@
+pipeline {
+    agent { label 'java-agent' }
+
+    environment {
+        IMAGE_NAME = "sekharcloudtrine/login-image"
+        IMAGE_TAG = "latest"
+    }
+
+    stages {
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean install -DskipTests -Dcheckstyle.skip=true'
+            }
+        }
+
+        stage('Sonar Scan') {
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh 'mvn sonar:sonar -Dsonar.projectKey=demo-app'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
+            }
+        }
+
+       stage('Trivy Image Scan') {
+            steps {
+                sh """
+                    trivy image --severity HIGH,CRITICAL --exit-code 1 --no-progress $IMAGE_NAME:$IMAGE_TAG
+                   """
+               }
+            }
+      
+
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-cred',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh """
+                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                        docker push $IMAGE_NAME:$IMAGE_TAG
+                    """
+                }
+            }
+        }
+
+      stage('Update Deployment File') {
+    environment {
+        GIT_REPO_NAME = "login-service-app"
+        GIT_USER_NAME = "somasekharkatta"
+    }
+
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'github',
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_PASSWORD'
+        )]) {
+            sh '''
+                git config user.email "kattasomasekhar980@gmail.com"
+                git config user.name "somasekhar katta"
+
+                sed -i "s|image: .*|image: sekharcloudtrine/login-image:${BUILD_NUMBER}|g" deployment.yml
+
+                git add deployment.yml
+
+                git diff --cached --quiet || git commit -m "Update image to version ${BUILD_NUMBER}"
+
+                git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
+            '''
+        }
+    }
+}
+
+    }
+}
