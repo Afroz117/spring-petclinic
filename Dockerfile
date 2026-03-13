@@ -1,6 +1,6 @@
 FROM eclipse-temurin:17-jre-jammy
 
-RUN useradd -m -u 1001 appuser ---[ attaching a specific uid for Prevents permission mismatch in Kubernetes]
+RUN useradd -m -u 1001 appuser
 
 WORKDIR /opt/app
 
