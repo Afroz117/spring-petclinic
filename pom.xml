@@ -12,15 +12,12 @@
   <name>petclinic</name>
 
   <properties>
-    <!-- Generic properties -->
     <jackson-bom.version>3.1.0</jackson-bom.version>
     <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <!-- Important for reproducible builds. Update using e.g. ./mvnw versions:set -DnewVersion=... -->
     <project.build.outputTimestamp>2024-11-28T14:37:52Z</project.build.outputTimestamp>
 
-    <!-- Web dependencies -->
     <webjars-locator.version>1.1.2</webjars-locator.version>
     <webjars-bootstrap.version>5.3.8</webjars-bootstrap.version>
     <webjars-font-awesome.version>4.7.0</webjars-font-awesome.version>
@@ -42,7 +39,6 @@
   </licenses>
 
   <dependencies>
-    <!-- Spring and Spring Boot dependencies -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -158,11 +154,6 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <dependency>
-    <groupId>com.fasterxml.jackson.core</groupId>
-    <artifactId>jackson-core</artifactId>
-    <version>3.1.0</version>
-</dependency>
 
   <build>
     <plugins>
@@ -241,8 +232,6 @@
         <artifactId>spring-boot-maven-plugin</artifactId>
         <executions>
           <execution>
-            <!-- Spring Boot Actuator displays build-related information
-              if a META-INF/build-info.properties file is present -->
             <goals>
               <goal>build-info</goal>
             </goals>
@@ -277,8 +266,6 @@
         </executions>
       </plugin>
 
-      <!-- Spring Boot Actuator displays build-related information if a git.properties file is
-      present at the classpath -->
       <plugin>
         <groupId>io.github.git-commit-id</groupId>
         <artifactId>git-commit-id-maven-plugin</artifactId>
@@ -287,8 +274,6 @@
           <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
         </configuration>
       </plugin>
-      <!-- Spring Boot Actuator displays sbom-related information if a CycloneDX SBOM file is
-      present at the classpath -->
       <plugin>
         <?m2e ignore?>
         <groupId>org.cyclonedx</groupId>
@@ -357,8 +342,6 @@
       <build>
         <pluginManagement>
           <plugins>
-            <!-- This plugin's configuration is used to store Eclipse m2e settings
-              only. It has no influence on the Maven build itself. -->
             <plugin>
               <groupId>org.eclipse.m2e</groupId>
               <artifactId>lifecycle-mapping</artifactId>
